@@ -42,23 +42,20 @@ trait Elements
         $this->setNavStartParams();
         $this->setParamsFilters();
 
-        if ($this->arParams['OG_TAGS_IMAGE'])
-        {
+        if ($this->arParams['OG_TAGS_IMAGE']) {
             $this->addParamsSelected([$this->arParams['OG_TAGS_IMAGE']]);
         }
     }
 
     protected function setNavStartParams()
     {
-        if ($this->arParams['PAGER_SAVE_SESSION'] !== 'Y')
-        {
+        if ($this->arParams['PAGER_SAVE_SESSION'] !== 'Y') {
             \CPageOption::SetOptionString('main', 'nav_page_in_session', 'N');
         }
 
         $this->arParams['PAGER_DESC_NUMBERING'] = $this->arParams['PAGER_DESC_NUMBERING'] === 'Y';
 
-        if ($this->arParams['DISPLAY_BOTTOM_PAGER'] === 'Y' || $this->arParams['DISPLAY_TOP_PAGER'] === 'Y')
-        {
+        if ($this->arParams['DISPLAY_BOTTOM_PAGER'] === 'Y' || $this->arParams['DISPLAY_TOP_PAGER'] === 'Y') {
             $this->navStartParams = [
                 'nPageSize' => $this->arParams['ELEMENTS_COUNT'],
                 'bDescPageNumbering' => $this->arParams['PAGER_DESC_NUMBERING'],
@@ -66,16 +63,12 @@ trait Elements
             ];
 
             $this->addCacheAdditionalId(\CDBResult::GetNavParams($this->navStartParams));
-        }
-        elseif ($this->arParams['ELEMENTS_COUNT'] > 0)
-        {
+        } elseif ($this->arParams['ELEMENTS_COUNT'] > 0) {
             $this->navStartParams = [
                 'nTopCount' => $this->arParams['ELEMENTS_COUNT'],
                 'bDescPageNumbering' => $this->arParams['PAGER_DESC_NUMBERING']
             ];
-        }
-        else
-        {
+        } else {
             $this->navStartParams = false;
         }
     }
@@ -91,8 +84,7 @@ trait Elements
          * @global object $navComponentObject
          */
 
-        if ($this->arParams['DISPLAY_BOTTOM_PAGER'] === 'Y' || $this->arParams['DISPLAY_TOP_PAGER'] === 'Y')
-        {
+        if ($this->arParams['DISPLAY_BOTTOM_PAGER'] === 'Y' || $this->arParams['DISPLAY_TOP_PAGER'] === 'Y') {
             $this->arResult['NAV_STRING'] = $result->GetPageNavStringEx(
                 $navComponentObject,
                 $this->arParams['PAGER_TITLE'],
@@ -107,8 +99,7 @@ trait Elements
     protected function executeMainElements()
     {
         // todo Move to getFilterParams()
-        if ($this->arParams['SECTION_CODE'] && !$this->arParams['SECTION_ID'])
-        {
+        if ($this->arParams['SECTION_CODE'] && !$this->arParams['SECTION_ID']) {
             $this->arParams['SECTION_ID'] = \CIBlockFindTools::GetSectionID(
                 0,
                 $this->arParams['SECTION_CODE'],
@@ -116,8 +107,7 @@ trait Elements
             );
         }
 
-        if ($this->arParams['ELEMENT_CODE'] && !$this->arParams['ELEMENT_ID'])
-        {
+        if ($this->arParams['ELEMENT_CODE'] && !$this->arParams['ELEMENT_ID']) {
             $this->arParams['ELEMENT_ID'] = \CIBlockFindTools::GetElementID(
                 0,
                 $this->arParams['ELEMENT_CODE'],
@@ -134,97 +124,88 @@ trait Elements
 
     protected function readInheritedProps()
     {
-        if ($this->arParams['SET_SEO_TAGS'] !== 'Y' || !$this->arParams['IBLOCK_ID'])
-        {
-            if ($this->arParams['OG_TAGS_TITLE'] !== 'SEO_TITLE' && $this->arParams['OG_TAGS_DESCRIPTION'] !== 'SEO_DESCRIPTION')
-            {
+        if ($this->arParams['SET_SEO_TAGS'] !== 'Y' || !$this->arParams['IBLOCK_ID']) {
+            if ($this->arParams['OG_TAGS_TITLE'] !== 'SEO_TITLE'
+                && $this->arParams['OG_TAGS_DESCRIPTION'] !== 'SEO_DESCRIPTION') {
                 return false;
             }
         }
 
-        if ($this->arParams['ELEMENT_ID'])
-        {
-            $rsSeoValues = new InheritedProperty\ElementValues($this->arParams['IBLOCK_ID'], $this->arParams['ELEMENT_ID']);
+        if ($this->arParams['ELEMENT_ID']) {
+            $rsSeoValues = new InheritedProperty\ElementValues(
+                $this->arParams['IBLOCK_ID'],
+                $this->arParams['ELEMENT_ID']
+            );
             $seoValues = $rsSeoValues->getValues();
 
-            if (!$this->arResult['SEO_TAGS']['TITLE'])
-            {
+            if (!$this->arResult['SEO_TAGS']['TITLE']) {
                 $this->arResult['SEO_TAGS']['TITLE'] = $seoValues['ELEMENT_META_TITLE'];
             }
 
-            if (!$this->arResult['SEO_TAGS']['DESCRIPTION'])
-            {
+            if (!$this->arResult['SEO_TAGS']['DESCRIPTION']) {
                 $this->arResult['SEO_TAGS']['DESCRIPTION'] = $seoValues['ELEMENT_META_DESCRIPTION'];
             }
 
-            if (!$this->arResult['SEO_TAGS']['KEYWORDS'])
-            {
+            if (!$this->arResult['SEO_TAGS']['KEYWORDS']) {
                 $this->arResult['SEO_TAGS']['KEYWORDS'] = $seoValues['ELEMENT_META_KEYWORDS'];
             }
-        }
-        elseif ($this->arParams['SECTION_ID'])
-        {
-            $rsSeoValues = new InheritedProperty\SectionValues($this->arParams['IBLOCK_ID'], $this->arParams['SECTION_ID']);
+        } elseif ($this->arParams['SECTION_ID']) {
+            $rsSeoValues = new InheritedProperty\SectionValues(
+                $this->arParams['IBLOCK_ID'],
+                $this->arParams['SECTION_ID']
+            );
             $seoValues = $rsSeoValues->getValues();
 
-            if (!$this->arResult['SEO_TAGS']['TITLE'])
-            {
+            if (!$this->arResult['SEO_TAGS']['TITLE']) {
                 $this->arResult['SEO_TAGS']['TITLE'] = $seoValues['SECTION_META_TITLE'];
             }
 
-            if (!$this->arResult['SEO_TAGS']['DESCRIPTION'])
-            {
+            if (!$this->arResult['SEO_TAGS']['DESCRIPTION']) {
                 $this->arResult['SEO_TAGS']['DESCRIPTION'] = $seoValues['SECTION_META_DESCRIPTION'];
             }
 
-            if (!$this->arResult['SEO_TAGS']['KEYWORDS'])
-            {
+            if (!$this->arResult['SEO_TAGS']['KEYWORDS']) {
                 $this->arResult['SEO_TAGS']['KEYWORDS'] = $seoValues['SECTION_META_KEYWORDS'];
             }
         }
 
-        if (!empty($this->arResult['SEO_TAGS']) && is_array($this->arResult['SEO_TAGS']))
-        {
-            foreach ($this->arResult['SEO_TAGS'] as &$field)
-            {
+        if (!empty($this->arResult['SEO_TAGS']) && is_array($this->arResult['SEO_TAGS'])) {
+            foreach ($this->arResult['SEO_TAGS'] as &$field) {
                 $field = strip_tags($field);
             }
 
-            unset ($field);
+            unset($field);
         }
 
-        if (!empty($this->arResult['SEO_TAGS']))
-        {
+        if (!empty($this->arResult['SEO_TAGS'])) {
             $this->setResultCacheKeys(['SEO_TAGS']);
         }
     }
 
     protected function readSectionParams()
     {
-        if ($this->arResult['IBLOCK_SECTION_ID'])
-        {
+        if ($this->arResult['IBLOCK_SECTION_ID']) {
             $this->arParams['SECTION_ID'] = $this->arResult['IBLOCK_SECTION_ID'];
         }
 
-        if ($this->arParams['SECTION_ID'] > 0)
-        {
+        if ($this->arParams['SECTION_ID'] > 0) {
             $this->arResult['SECTION'] = ['PATH' => []];
 
             $rsPath = \CIBlockSection::GetNavChain($this->arParams['IBLOCK_ID'], $this->arParams['SECTION_ID']);
             $rsPath->SetUrlTemplates('', $this->arParams['SECTION_URL'], $this->arParams['IBLOCK_URL']);
 
-            while ($arPath = $rsPath->GetNext())
-            {
+            while ($arPath = $rsPath->GetNext()) {
                 $ipropValues = new InheritedProperty\SectionValues($this->arParams['IBLOCK_ID'], $arPath['ID']);
                 $arPath['IPROPERTY_VALUES'] = $ipropValues->getValues();
                 $this->arResult['SECTION']['PATH'][] = $arPath;
             }
 
-            $ipropValues = new InheritedProperty\SectionValues($this->arParams['IBLOCK_ID'], $this->arParams['SECTION_ID']);
+            $ipropValues = new InheritedProperty\SectionValues(
+                $this->arParams['IBLOCK_ID'],
+                $this->arParams['SECTION_ID']
+            );
             $this->arResult['IPROPERTY_VALUES'] = $ipropValues->getValues();
-        }
-        else
-        {
+        } else {
             $this->arResult['SECTION'] = false;
         }
 
@@ -235,57 +216,45 @@ trait Elements
     {
         global $APPLICATION;
 
-        if (!$this->arResult['OG_TAGS']['TITLE'])
-        {
-            if ($this->arParams['OG_TAGS_TITLE'] === 'SEO_TITLE')
-            {
+        if (!$this->arResult['OG_TAGS']['TITLE']) {
+            if ($this->arParams['OG_TAGS_TITLE'] === 'SEO_TITLE') {
                 $this->arResult['OG_TAGS']['TITLE'] = strip_tags($this->arResult['SEO_TAGS']['TITLE']);
-            }
-            elseif ($this->arParams['OG_TAGS_TITLE'])
-            {
+            } elseif ($this->arParams['OG_TAGS_TITLE']) {
                 $this->arResult['OG_TAGS']['TITLE'] = strip_tags($this->arResult[$this->arParams['OG_TAGS_TITLE']]);
             }
         }
 
-        if (!$this->arResult['OG_TAGS']['DESCRIPTION'])
-        {
-            if ($this->arParams['OG_TAGS_DESCRIPTION'] === 'SEO_DESCRIPTION')
-            {
+        if (!$this->arResult['OG_TAGS']['DESCRIPTION']) {
+            if ($this->arParams['OG_TAGS_DESCRIPTION'] === 'SEO_DESCRIPTION') {
                 $this->arResult['OG_TAGS']['DESCRIPTION'] = strip_tags($this->arResult['SEO_TAGS']['DESCRIPTION']);
-            }
-            elseif ($this->arParams['OG_TAGS_DESCRIPTION'])
-            {
-                $this->arResult['OG_TAGS']['DESCRIPTION'] = strip_tags($this->arResult[$this->arParams['OG_TAGS_DESCRIPTION']]);
+            } elseif ($this->arParams['OG_TAGS_DESCRIPTION']) {
+                $this->arResult['OG_TAGS']['DESCRIPTION'] = strip_tags(
+                    $this->arResult[$this->arParams['OG_TAGS_DESCRIPTION']]
+                );
             }
         }
 
-        if (!$this->arResult['OG_TAGS']['IMAGE'] && $this->arParams['OG_TAGS_IMAGE'])
-        {
+        if (!$this->arResult['OG_TAGS']['IMAGE'] && $this->arParams['OG_TAGS_IMAGE']) {
             $file = \CFile::GetPath($this->arResult[$this->arParams['OG_TAGS_IMAGE']]);
 
-            if ($file)
-            {
+            if ($file) {
                 $this->arResult['OG_TAGS']['IMAGE'] = 'http://'.SITE_SERVER_NAME.$file;
             }
         }
 
-        if ($this->arParams['OG_TAGS_URL'] === 'SHORT_LINK')
-        {
+        if ($this->arParams['OG_TAGS_URL'] === 'SHORT_LINK') {
             $this->arResult['OG_TAGS']['URL'] = $this->getShortLink($APPLICATION->GetCurPage());
         }
 
-        if (!empty($this->arResult['OG_TAGS']) && is_array($this->arResult['OG_TAGS']))
-        {
-            foreach ($this->arResult['OG_TAGS'] as &$field)
-            {
+        if (!empty($this->arResult['OG_TAGS']) && is_array($this->arResult['OG_TAGS'])) {
+            foreach ($this->arResult['OG_TAGS'] as &$field) {
                 $field = strip_tags($field);
             }
 
-            unset ($field);
+            unset($field);
         }
 
-        if (!empty($this->arResult['OG_TAGS']))
-        {
+        if (!empty($this->arResult['OG_TAGS'])) {
             $this->setResultCacheKeys(['OG_TAGS']);
         }
     }
@@ -307,8 +276,7 @@ trait Elements
             ]
         );
 
-        if ($shortLink = $rsShortLink->Fetch())
-        {
+        if ($shortLink = $rsShortLink->Fetch()) {
             return $prefix.$shortLink['SHORT_URI'];
         }
 
@@ -322,8 +290,7 @@ trait Elements
             ]
         );
 
-        if ($id)
-        {
+        if ($id) {
             return $prefix.$shortLink;
         }
     }
@@ -343,23 +310,19 @@ trait Elements
     {
         global $APPLICATION;
 
-        if ($this->arParams['SET_SEO_TAGS'] !== 'Y')
-        {
+        if ($this->arParams['SET_SEO_TAGS'] !== 'Y') {
             return false;
         }
 
-        if ($this->arResult['SEO_TAGS']['TITLE'])
-        {
+        if ($this->arResult['SEO_TAGS']['TITLE']) {
             $APPLICATION->SetPageProperty('title', $this->arResult['SEO_TAGS']['TITLE']);
         }
 
-        if ($this->arResult['SEO_TAGS']['DESCRIPTION'])
-        {
+        if ($this->arResult['SEO_TAGS']['DESCRIPTION']) {
             $APPLICATION->SetPageProperty('description', $this->arResult['SEO_TAGS']['DESCRIPTION']);
         }
 
-        if ($this->arResult['SEO_TAGS']['KEYWORDS'])
-        {
+        if ($this->arResult['SEO_TAGS']['KEYWORDS']) {
             $APPLICATION->SetPageProperty('keywords', $this->arResult['SEO_TAGS']['KEYWORDS']);
         }
     }
@@ -368,23 +331,23 @@ trait Elements
     {
         global $APPLICATION;
 
-        if ($this->arParams['ADD_SECTIONS_CHAIN'] && is_array($this->arResult['SECTION']))
-        {
-            foreach ($this->arResult['SECTION']['PATH'] as $path)
-            {
-                if ($path['IPROPERTY_VALUES']['SECTION_PAGE_TITLE'])
-                {
-                    $APPLICATION->AddChainItem($path['IPROPERTY_VALUES']['SECTION_PAGE_TITLE'], $path['~SECTION_PAGE_URL']);
-                }
-                else
-                {
-                    $APPLICATION->AddChainItem($path['NAME'], $path['~SECTION_PAGE_URL']);
+        if ($this->arParams['ADD_SECTIONS_CHAIN'] && is_array($this->arResult['SECTION'])) {
+            foreach ($this->arResult['SECTION']['PATH'] as $path) {
+                if ($path['IPROPERTY_VALUES']['SECTION_PAGE_TITLE']) {
+                    $APPLICATION->AddChainItem(
+                        $path['IPROPERTY_VALUES']['SECTION_PAGE_TITLE'],
+                        $path['~SECTION_PAGE_URL']
+                    );
+                } else {
+                    $APPLICATION->AddChainItem(
+                        $path['NAME'],
+                        $path['~SECTION_PAGE_URL']
+                    );
                 }
             }
         }
 
-        if ($this->arParams['ADD_ELEMENT_CHAIN'] === 'Y' && $this->arResult['NAME'])
-        {
+        if ($this->arParams['ADD_ELEMENT_CHAIN'] === 'Y' && $this->arResult['NAME']) {
             $APPLICATION->AddChainItem($this->arResult['NAME']);
         }
     }
@@ -402,24 +365,32 @@ trait Elements
      */
     protected function setOgTags()
     {
-        if ($this->arResult['OG_TAGS']['TITLE'])
-        {
-            Asset::getInstance()->addString('<meta property="og:title" content="'.$this->arResult['OG_TAGS']['TITLE'].'" />', true);
+        if ($this->arResult['OG_TAGS']['TITLE']) {
+            Asset::getInstance()->addString(
+                '<meta property="og:title" content="'.$this->arResult['OG_TAGS']['TITLE'].'" />',
+                true
+            );
         }
 
-        if ($this->arResult['OG_TAGS']['DESCRIPTION'])
-        {
-            Asset::getInstance()->addString('<meta property="og:description" content="'.$this->arResult['OG_TAGS']['DESCRIPTION'].'" />', true);
+        if ($this->arResult['OG_TAGS']['DESCRIPTION']) {
+            Asset::getInstance()->addString(
+                '<meta property="og:description" content="'.$this->arResult['OG_TAGS']['DESCRIPTION'].'" />',
+                true
+            );
         }
 
-        if ($this->arResult['OG_TAGS']['URL'])
-        {
-            Asset::getInstance()->addString('<meta property="og:url" content="'.$this->arResult['OG_TAGS']['URL'].'" />', true);
+        if ($this->arResult['OG_TAGS']['URL']) {
+            Asset::getInstance()->addString(
+                '<meta property="og:url" content="'.$this->arResult['OG_TAGS']['URL'].'" />',
+                true
+            );
         }
 
-        if ($this->arResult['OG_TAGS']['IMAGE'])
-        {
-            Asset::getInstance()->addString('<meta property="og:image" content="'.$this->arResult['OG_TAGS']['IMAGE'].'" />', true);
+        if ($this->arResult['OG_TAGS']['IMAGE']) {
+            Asset::getInstance()->addString(
+                '<meta property="og:image" content="'.$this->arResult['OG_TAGS']['IMAGE'].'" />',
+                true
+            );
         }
     }
 
@@ -430,8 +401,7 @@ trait Elements
     {
         global $APPLICATION;
 
-        if (!$APPLICATION->GetShowIncludeAreas() || $this->showEditButtons === false)
-        {
+        if (!$APPLICATION->GetShowIncludeAreas() || $this->showEditButtons === false) {
             return false;
         }
 
@@ -444,12 +414,10 @@ trait Elements
 
         $this->addIncludeAreaIcons(\CIBlock::GetComponentMenu($APPLICATION->GetPublicShowMode(), $buttons));
 
-        if (is_array($buttons['intranet']))
-        {
+        if (is_array($buttons['intranet'])) {
             Asset::getInstance()->addJs(BX_ROOT.'/js/main/utils.js');
 
-            foreach ($buttons['intranet'] as $button)
-            {
+            foreach ($buttons['intranet'] as $button) {
                 $this->addEditButton($button);
             }
         }
@@ -460,55 +428,46 @@ trait Elements
      */
     protected function setParamsFilters()
     {
-        if ($this->arParams['IBLOCK_TYPE'])
-        {
+        if ($this->arParams['IBLOCK_TYPE']) {
             $this->filterParams['IBLOCK_TYPE'] = $this->arParams['IBLOCK_TYPE'];
         }
 
-        if ($this->arParams['IBLOCK_ID'])
-        {
+        if ($this->arParams['IBLOCK_ID']) {
             $this->filterParams['IBLOCK_ID'] = $this->arParams['IBLOCK_ID'];
         }
 
-        if ($this->arParams['SECTION_CODE'])
-        {
+        if ($this->arParams['SECTION_CODE']) {
             $this->filterParams['SECTION_CODE'] = $this->arParams['SECTION_CODE'];
-        }
-        elseif ($this->arParams['SECTION_ID'])
-        {
+        } elseif ($this->arParams['SECTION_ID']) {
             $this->filterParams['SECTION_ID'] = $this->arParams['SECTION_ID'];
         }
 
-        if ($this->arParams['INCLUDE_SUBSECTIONS'] === 'Y')
-        {
+        if ($this->arParams['INCLUDE_SUBSECTIONS'] === 'Y') {
             $this->filterParams['INCLUDE_SUBSECTIONS'] = 'Y';
         }
 
-        if ($this->arParams['ELEMENT_CODE'])
-        {
+        if ($this->arParams['ELEMENT_CODE']) {
             $this->filterParams['CODE'] = $this->arParams['ELEMENT_CODE'];
-        }
-        elseif ($this->arParams['ELEMENT_ID'])
-        {
+        } elseif ($this->arParams['ELEMENT_ID']) {
             $this->filterParams['ID'] = $this->arParams['ELEMENT_ID'];
         }
 
-        if ($this->arParams['CHECK_PERMISSIONS'])
-        {
+        if ($this->arParams['CHECK_PERMISSIONS']) {
             $this->filterParams['CHECK_PERMISSIONS'] = $this->arParams['CHECK_PERMISSIONS'];
         }
 
-        if (!isset($this->filterParams['ACTIVE']))
-        {
+        if (!isset($this->filterParams['ACTIVE'])) {
             $this->filterParams['ACTIVE'] = 'Y';
         }
 
         if (strlen($this->arParams['EX_FILTER_NAME']) > 0
             && preg_match("/^[A-Za-z_][A-Za-z01-9_]*$/", $this->arParams['EX_FILTER_NAME'])
             && is_array($GLOBALS[$this->arParams['EX_FILTER_NAME']])
-        )
-        {
-            $this->filterParams = array_merge_recursive($this->filterParams, $GLOBALS[$this->arParams['EX_FILTER_NAME']]);
+        ) {
+            $this->filterParams = array_merge_recursive(
+                $this->filterParams,
+                $GLOBALS[$this->arParams['EX_FILTER_NAME']]
+            );
 
             $this->addCacheAdditionalId($GLOBALS[$this->arParams['EX_FILTER_NAME']]);
         }
@@ -523,14 +482,10 @@ trait Elements
      */
     public function addGlobalFilters(array $fields, $recursiveMerge = false)
     {
-        if (is_array($fields) && !empty($fields))
-        {
-            if ($recursiveMerge)
-            {
+        if (is_array($fields) && !empty($fields)) {
+            if ($recursiveMerge) {
                 $this->filterParams = array_merge_recursive($this->filterParams, $fields);
-            }
-            else
-            {
+            } else {
                 $this->filterParams = array_merge($this->filterParams, $fields);
             }
 
@@ -546,8 +501,7 @@ trait Elements
      */
     public function addParamsGrouping($fields = [])
     {
-        if (is_array($fields) && !empty($fields))
-        {
+        if (is_array($fields) && !empty($fields)) {
             $this->groupingParams = array_merge(is_array($this->groupingParams) ? $this->groupingParams : [], $fields);
         }
     }
@@ -560,9 +514,11 @@ trait Elements
      */
     public function addParamsNavStart($params = [])
     {
-        if (is_array($params) && !empty($params))
-        {
-            $this->navStartParams = array_merge(is_array($this->navStartParams) ? $this->navStartParams : array(), $params);
+        if (is_array($params) && !empty($params)) {
+            $this->navStartParams = array_merge(
+                is_array($this->navStartParams) ? $this->navStartParams : array(),
+                $params
+            );
         }
     }
 
@@ -574,13 +530,11 @@ trait Elements
      */
     public function addParamsSelected($fields = null, $props = null)
     {
-        if (is_array($fields) && !empty($fields))
-        {
+        if (is_array($fields) && !empty($fields)) {
             $this->arParams['SELECT_FIELDS'] = array_merge($this->arParams['SELECT_FIELDS'], $fields);
         }
 
-        if (is_array($props) && !empty($props))
-        {
+        if (is_array($props) && !empty($props)) {
             $this->arParams['SELECT_PROPS'] = array_merge($this->arParams['SELECT_PROPS'], $props);
         }
     }
@@ -595,23 +549,19 @@ trait Elements
     {
         $this->arParams['SORT_BY_1'] = trim($this->arParams['SORT_BY_1']);
 
-        if (strlen($this->arParams['SORT_BY_1']) <= 0)
-        {
+        if (strlen($this->arParams['SORT_BY_1']) <= 0) {
             $this->arParams['SORT_BY_1'] = 'ACTIVE_FROM';
         }
 
-        if (!preg_match('/^(asc|desc|nulls)(,asc|,desc|,nulls){0,1}$/i', $this->arParams['SORT_ORDER_1']))
-        {
+        if (!preg_match('/^(asc|desc|nulls)(,asc|,desc|,nulls){0,1}$/i', $this->arParams['SORT_ORDER_1'])) {
             $this->arParams['SORT_ORDER_1'] = 'DESC';
         }
 
-        if (strlen($this->arParams['SORT_BY_2']) <= 0)
-        {
+        if (strlen($this->arParams['SORT_BY_2']) <= 0) {
             $this->arParams['SORT_BY_2'] = 'SORT';
         }
 
-        if (!preg_match('/^(asc|desc|nulls)(,asc|,desc|,nulls){0,1}$/i', $this->arParams['SORT_ORDER_2']))
-        {
+        if (!preg_match('/^(asc|desc|nulls)(,asc|,desc|,nulls){0,1}$/i', $this->arParams['SORT_ORDER_2'])) {
             $this->arParams['SORT_ORDER_2'] = 'ASC';
         }
 
@@ -620,8 +570,7 @@ trait Elements
             $this->arParams['SORT_BY_2'] => $this->arParams['SORT_ORDER_2']
         ];
 
-        if (is_array($additionalFields) && !empty($additionalFields))
-        {
+        if (is_array($additionalFields) && !empty($additionalFields)) {
             $fields = array_merge($fields, $additionalFields);
         }
 
@@ -643,8 +592,7 @@ trait Elements
      */
     public function getParamsFilters($additionalFields = [])
     {
-        if (is_array($additionalFields) && !empty($additionalFields))
-        {
+        if (is_array($additionalFields) && !empty($additionalFields)) {
             $this->filterParams = array_merge_recursive($this->filterParams, $additionalFields);
         }
 
@@ -660,8 +608,7 @@ trait Elements
      */
     public function getParamsNavStart($additionalFields = [])
     {
-        if (!empty($additionalFields))
-        {
+        if (!empty($additionalFields)) {
             $this->addParamsNavStart($additionalFields);
         }
 
@@ -677,8 +624,7 @@ trait Elements
      */
     public function getParamsGrouping($additionalFields = [])
     {
-        if (!empty($additionalFields))
-        {
+        if (!empty($additionalFields)) {
             $this->addParamsGrouping($additionalFields);
         }
 
@@ -701,12 +647,9 @@ trait Elements
             'NAME'
         ];
 
-        if (!empty($this->arParams['SELECT_FIELDS']))
-        {
-            foreach ($this->arParams['SELECT_FIELDS'] as $field)
-            {
-                if (trim($field))
-                {
+        if (!empty($this->arParams['SELECT_FIELDS'])) {
+            foreach ($this->arParams['SELECT_FIELDS'] as $field) {
+                if (trim($field)) {
                     $fields[] = $field;
                 }
             }
@@ -714,19 +657,15 @@ trait Elements
             unset($field);
         }
 
-        if (!empty($this->arParams['SELECT_PROPS']))
-        {
-            foreach ($this->arParams['SELECT_PROPS'] as $propCode)
-            {
-                if (trim($propCode))
-                {
+        if (!empty($this->arParams['SELECT_PROPS'])) {
+            foreach ($this->arParams['SELECT_PROPS'] as $propCode) {
+                if (trim($propCode)) {
                     $fields[] = $propsPrefix.$propCode;
                 }
             }
         }
 
-        if (is_array($additionalFields) && !empty($additionalFields))
-        {
+        if (is_array($additionalFields) && !empty($additionalFields)) {
             $fields = array_merge($fields, $additionalFields);
         }
 
@@ -735,12 +674,9 @@ trait Elements
 
     public function getProcessingMethod()
     {
-        if ($this->arParams['RESULT_PROCESSING_MODE'] === 'EXTENDED')
-        {
+        if ($this->arParams['RESULT_PROCESSING_MODE'] === 'EXTENDED') {
             return 'GetNextElement';
-        }
-        else
-        {
+        } else {
             return 'GetNext';
         }
     }
@@ -755,49 +691,38 @@ trait Elements
     {
         $arElement = $element;
 
-        if ($this->arParams['RESULT_PROCESSING_MODE'] === 'EXTENDED')
-        {
+        if ($this->arParams['RESULT_PROCESSING_MODE'] === 'EXTENDED') {
             $arElement = $element->GetFields();
             $arElement['PROPS'] = $element->GetProperties();
-        }
-        elseif (!empty($this->arParams['SELECT_PROPS']))
-        {
-            foreach ($this->arParams['SELECT_PROPS'] as $propCode)
-            {
-                if (trim($propCode))
-                {
+        } elseif (!empty($this->arParams['SELECT_PROPS'])) {
+            foreach ($this->arParams['SELECT_PROPS'] as $propCode) {
+                if (trim($propCode)) {
                     $arProp = explode('.', $propCode);
                     $propCode = array_shift($arProp);
                     $propValue = $element['PROPERTY_'.$propCode.'_VALUE'];
                     $propDescr = $element['PROPERTY_'.$propCode.'_DESCRIPTION'];
 
-                    if ($propValue)
-                    {
+                    if ($propValue) {
                         $arElement['PROPS'][$propCode]['VALUE'] = $propValue;
                     }
 
-                    if ($propDescr)
-                    {
+                    if ($propDescr) {
                         $arElement['PROPS'][$propCode]['DESCRIPTION'] = $propDescr;
                     }
 
-                    if (!empty($arElement['PROPS'][$propCode]))
-                    {
-                        foreach ($arProp as $field)
-                        {
-                            $arElement['PROPS'][$propCode]['LINKED'][$field] = $element['PROPERTY_'.$propCode.'_'.$field];
+                    if (!empty($arElement['PROPS'][$propCode])) {
+                        foreach ($arProp as $field) {
+                            $propKey = "PROPERTY_{$propCode}_{$field}";
+                            $arElement['PROPS'][$propCode]['LINKED'][$field] = $element[$propKey];
                         }
                     }
                 }
             }
         }
 
-        if ($arElement = $this->prepareElementsResult($arElement))
-        {
+        if ($arElement = $this->prepareElementsResult($arElement)) {
             return $arElement;
-        }
-        else
-        {
+        } else {
             return false;
         }
     }

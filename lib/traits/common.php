@@ -62,7 +62,10 @@ trait Common
 
     /**
      * @var array List keys from $this->arParams for checking
-     * @example $checkParams = array('IBLOCK_TYPE' => array('type' => 'string'), 'ELEMENT_ID' => array('type' => 'int', 'error' => '404'));
+     * @example $checkParams = [
+     *     'IBLOCK_TYPE' => ['type' => 'string'],
+     *     'ELEMENT_ID' => ['type' => 'int', 'error' => '404']
+     * ];
      */
     protected $checkParams = array();
 
@@ -74,15 +77,12 @@ trait Common
      */
     public function includeModules()
     {
-        if (!is_array($this->needModules) || empty($this->needModules))
-        {
+        if (!is_array($this->needModules) || empty($this->needModules)) {
             return false;
         }
 
-        foreach ($this->needModules as $module)
-        {
-            if (!Main\Loader::includeModule($module))
-            {
+        foreach ($this->needModules as $module) {
+            if (!Main\Loader::includeModule($module)) {
                 throw new Main\LoaderException('Failed include module "'.$module.'"');
             }
         }
@@ -95,85 +95,63 @@ trait Common
      */
     protected function configurate()
     {
-
     }
 
     /**
      * @throws \Bitrix\Main\ArgumentException
      */
     private function checkAutomaticParams()
-	{
-		try
-		{
-			foreach ($this->checkParams as $key => $params)
-			{
-				switch ($params['type'])
-				{
-					case 'int':
+    {
+        try {
+            foreach ($this->checkParams as $key => $params) {
+                switch ($params['type']) {
+                    case 'int':
+                        if (!is_numeric($this->arParams[$key]) && $params['error'] !== false) {
+                            throw new Main\ArgumentTypeException($key, 'integer');
+                        } else {
+                            $this->arParams[$key] = intval($this->arParams[$key]);
+                        }
 
-						if (!is_numeric($this->arParams[$key]) && $params['error'] !== false)
-						{
-							throw new Main\ArgumentTypeException($key, 'integer');
-						}
-						else
-						{
-							$this->arParams[$key] = intval($this->arParams[$key]);
-						}
+                        break;
 
-						break;
+                    case 'string':
+                        $this->arParams[$key] = htmlspecialchars(trim($this->arParams[$key]));
 
-					case 'string':
+                        if (strlen($this->arParams[$key]) <= 0 && $params['error'] !== false) {
+                            throw new Main\ArgumentNullException($key);
+                        }
 
-						$this->arParams[$key] = htmlspecialchars(trim($this->arParams[$key]));
+                        break;
 
-						if (strlen($this->arParams[$key]) <= 0 && $params['error'] !== false)
-						{
-							throw new Main\ArgumentNullException($key);
-						}
+                    case 'array':
+                        if (!is_array($this->arParams[$key])) {
+                            if ($params['error'] === false) {
+                                $this->arParams[$key] = array($this->arParams[$key]);
+                            } else {
+                                throw new Main\ArgumentTypeException($key, 'array');
+                            }
+                        }
 
-						break;
+                        break;
 
-					case 'array':
-
-						if (!is_array($this->arParams[$key]))
-						{
-							if ($params['error'] === false)
-							{
-								$this->arParams[$key] = array($this->arParams[$key]);
-							}
-							else
-							{
-								throw new Main\ArgumentTypeException($key, 'array');
-							}
-						}
-
-						break;
-
-					default:
-
-						throw new Main\ArgumentTypeException($key);
-				}
-			}
-		}
-		catch (Main\ArgumentException $exception)
-		{
-			if ($this->checkParams[$exception->getParameter()]['error'] === '404')
-			{
-				$this->return404(true, $exception);
-			}
-			else
-			{
-				throw $exception;
-			}
-		}
-	}
+                    default:
+                        throw new Main\ArgumentTypeException($key);
+                }
+            }
+        } catch (Main\ArgumentException $exception) {
+            if ($this->checkParams[$exception->getParameter()]['error'] === '404') {
+                $this->return404(true, $exception);
+            } else {
+                throw $exception;
+            }
+        }
+    }
 
     /**
      * Checking required component params
      */
     protected function checkParams()
     {
-
     }
 
     /**
@@ -181,41 +159,36 @@ trait Common
      */
     private function startAjax()
     {
-        if ($this->arParams['USE_AJAX'] !== 'Y')
-        {
+        if ($this->arParams['USE_AJAX'] !== 'Y') {
             return false;
         }
 
-        if (strlen($this->arParams['AJAX_PARAM_NAME']) <= 0)
-        {
+        if (strlen($this->arParams['AJAX_PARAM_NAME']) <= 0) {
             $this->arParams['AJAX_PARAM_NAME'] = 'compid';
         }
 
-        if (strlen($this->arParams['AJAX_COMPONENT_ID']) <= 0)
-        {
-            $this->arParams['AJAX_COMPONENT_ID'] = \CAjax::GetComponentID($this->getName(), $this->getTemplateName(), $this->ajaxComponentIdSalt);
+        if (strlen($this->arParams['AJAX_COMPONENT_ID']) <= 0) {
+            $this->arParams['AJAX_COMPONENT_ID'] = \CAjax::GetComponentID(
+                $this->getName(),
+                $this->getTemplateName(),
+                $this->ajaxComponentIdSalt
+            );
         }
 
-        if ($this->isAjax())
-        {
+        if ($this->isAjax()) {
             global $APPLICATION;
 
-            if ($this->arParams['AJAX_HEAD_RELOAD'] === 'Y')
-            {
+            if ($this->arParams['AJAX_HEAD_RELOAD'] === 'Y') {
                 $APPLICATION->ShowAjaxHead();
-            }
-            else
-            {
+            } else {
                 $APPLICATION->RestartBuffer();
             }
 
-            if ($this->arParams['AJAX_TYPE'] === 'JSON')
-            {
+            if ($this->arParams['AJAX_TYPE'] === 'JSON') {
                 header('Content-Type: application/json');
             }
 
-            if (strlen($this->arParams['AJAX_TEMPLATE_PAGE']) > 0)
-            {
+            if (strlen($this->arParams['AJAX_TEMPLATE_PAGE']) > 0) {
                 $this->templatePage = basename($this->arParams['AJAX_TEMPLATE_PAGE']);
             }
         }
@@ -226,7 +199,6 @@ trait Common
      */
     protected function executeProlog()
     {
-
     }
 
     /**
@@ -238,24 +210,21 @@ trait Common
     {
         global $USER;
 
-        if ($this->arParams['CACHE_TYPE'] && $this->arParams['CACHE_TYPE'] !== 'N' && $this->arParams['CACHE_TIME'] > 0)
-        {
-            if ($this->templatePage)
-            {
+        if ($this->arParams['CACHE_TYPE']
+            && $this->arParams['CACHE_TYPE'] !== 'N'
+            && $this->arParams['CACHE_TIME'] > 0
+        ) {
+            if ($this->templatePage) {
                 $this->cacheAdditionalId[] = $this->templatePage;
             }
 
-            if ($this->arParams['CACHE_GROUPS'] === 'Y')
-            {
+            if ($this->arParams['CACHE_GROUPS'] === 'Y') {
                 $this->cacheAdditionalId[] = $USER->GetGroups();
             }
 
-            if ($this->startResultCache($this->arParams['CACHE_TIME'], $this->cacheAdditionalId, $this->cacheDir))
-            {
+            if ($this->startResultCache($this->arParams['CACHE_TIME'], $this->cacheAdditionalId, $this->cacheDir)) {
                 return true;
-            }
-            else
-            {
+            } else {
                 return false;
             }
         }
@@ -285,14 +254,13 @@ trait Common
      */
     protected function executeMain()
     {
-
     }
 
     protected function executeMainCommon()
     {
-        if (strlen($this->arParams['AJAX_PARAM_NAME']) > 0 && strlen($this->arParams['AJAX_COMPONENT_ID']) > 0)
-        {
-            $this->arResult['AJAX_REQUEST_PARAMS'] = $this->arParams['AJAX_PARAM_NAME'].'='.$this->arParams['AJAX_COMPONENT_ID'];
+        if (strlen($this->arParams['AJAX_PARAM_NAME']) > 0 && strlen($this->arParams['AJAX_COMPONENT_ID']) > 0) {
+            $this->arResult['AJAX_REQUEST_PARAMS'] = $this->arParams['AJAX_PARAM_NAME'] . '='
+                . $this->arParams['AJAX_COMPONENT_ID'];
 
             $this->setResultCacheKeys(array('AJAX_REQUEST_PARAMS'));
         }
@@ -303,7 +271,6 @@ trait Common
      */
     protected function executeEpilog()
     {
-
     }
 
     /**
@@ -311,12 +278,11 @@ trait Common
      */
     private function stopAjax()
     {
-        if ($this->isAjax() && $this->arParams['USE_AJAX'] === 'Y')
-        {
+        if ($this->isAjax() && $this->arParams['USE_AJAX'] === 'Y') {
             global $APPLICATION;
-            
+
             $APPLICATION->FinalActions();
-            
+
             exit;
         }
     }
@@ -333,12 +299,10 @@ trait Common
 
     private function executeFinal()
     {
-        if ($this->exceptionNotifier)
-        {
+        if ($this->exceptionNotifier) {
             $logFile = Application::getDocumentRoot().$this->__path.'/'.$this->exceptionLog;
 
-            if (is_file($logFile))
-            {
+            if (is_file($logFile)) {
                 unlink($logFile);
             }
         }
@@ -348,31 +312,26 @@ trait Common
      * Set status 404 and throw exception
      *
      * @param bool $notifier Sent notify to admin email
-     * @param \Exception|null|false $exception Exception which will be throwing or "false" what not throwing exceptions. Default — throw new \Exception()
+     * @param \Exception|null|false $exception Exception which will be throwing or "false" (not throwing exceptions)
+     *     Default — throw new \Exception()
      * @throws \Exception
      */
     public function return404($notifier = false, \Exception $exception = null)
     {
-    	if (!defined('ERROR_404'))
-    	{
-    	    define('ERROR_404', 'Y');
-    	}
+        if (!defined('ERROR_404')) {
+            define('ERROR_404', 'Y');
+        }
 
         \CHTTP::SetStatus('404 Not Found');
 
-        if ($exception !== false)
-        {
-            if ($notifier === false)
-            {
+        if ($exception !== false) {
+            if ($notifier === false) {
                 $this->exceptionNotifier = false;
             }
 
-            if ($exception instanceof \Exception)
-            {
+            if ($exception instanceof \Exception) {
                 throw $exception;
-            }
-            else
-            {
+            } else {
                 throw new \Exception('Page not found');
             }
         }
@@ -394,17 +353,13 @@ trait Common
 
         $this->abortCache();
 
-        if ($USER->IsAdmin())
-        {
+        if ($USER->IsAdmin()) {
             $this->showExceptionAdmin($exception);
-        }
-        else
-        {
+        } else {
             $this->showExceptionUser($exception);
         }
 
-        if (($notifier === true) || ($this->exceptionNotifier && $notifier !== false) && BX_EXC_NOTIFY !== false)
-        {
+        if (($notifier === true) || ($this->exceptionNotifier && $notifier !== false) && BX_EXC_NOTIFY !== false) {
             $this->sendNotifyException($exception);
         }
     }
@@ -419,19 +374,20 @@ trait Common
         $adminEmail = Main\Config\Option::get('main', 'email_from');
         $logFile = Application::getDocumentRoot().$this->__path.'/'.$this->exceptionLog;
 
-        if (!is_file($logFile) && $adminEmail)
-        {
+        if (!is_file($logFile) && $adminEmail) {
             $date = date('Y-m-d H:m:s');
 
             bxmail(
                 $adminEmail,
                 Loc::getMessage(
-                    'BBC_COMPONENT_EXCEPTION_EMAIL_SUBJECT', array('#SITE_URL#' => SITE_SERVER_NAME)
+                    'BBC_COMPONENT_EXCEPTION_EMAIL_SUBJECT',
+                    array('#SITE_URL#' => SITE_SERVER_NAME)
                 ),
                 Loc::getMessage(
                     'BBC_COMPONENT_EXCEPTION_EMAIL_TEXT',
                     array(
-                        '#URL#' => 'http://'.SITE_SERVER_NAME.Main\Context::getCurrent()->getRequest()->getRequestedPage(),
+                        '#URL#' => 'http://' . SITE_SERVER_NAME
+                            . Main\Context::getCurrent()->getRequest()->getRequestedPage(),
                         '#DATE#' => $date,
                         '#EXCEPTION_MESSAGE#' => $exception->getMessage(),
                         '#EXCEPTION#' => $exception
@@ -477,14 +433,12 @@ trait Common
      */
     public function isAjax()
     {
-        if (
-            strlen($this->arParams['AJAX_COMPONENT_ID']) > 0
+        if (strlen($this->arParams['AJAX_COMPONENT_ID']) > 0
             && strlen($this->arParams['AJAX_PARAM_NAME']) > 0
             && $_REQUEST[$this->arParams['AJAX_PARAM_NAME']] === $this->arParams['AJAX_COMPONENT_ID']
             && isset($_SERVER['HTTP_X_REQUESTED_WITH'])
             && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest'
-        )
-        {
+        ) {
             return true;
         }
 
@@ -498,8 +452,7 @@ trait Common
      */
     public static function registerCacheTag($tag)
     {
-        if ($tag)
-        {
+        if ($tag) {
             Application::getInstance()->getTaggedCache()->registerTag($tag);
         }
     }
