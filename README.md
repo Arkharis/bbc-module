@@ -5,7 +5,7 @@
 
 ## Требования
 
-* PHP >= 5.4.0
+* PHP >= 7.0
 * Bitrix CMS >= 15.0.2
 
-## [Документация](http://bbc.bitrix.expert)
+## [Документация](http://bbc.samokhvalov.info/docs/v1/)
