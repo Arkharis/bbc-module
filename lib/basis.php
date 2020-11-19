@@ -14,120 +14,120 @@ namespace Bex\Bbc;
  */
 abstract class Basis extends \CBitrixComponent
 {
-    use Traits\Common;
+	use Traits\Common;
 
-    /**
-     * @var bool Auto executing methods of prolog / epilog in the traits
-     */
-    public $traitsAutoExecute = true;
+	/**
+	 * @var bool Auto executing methods of prolog / epilog in the traits
+	 */
+	public $traitsAutoExecute = true;
 
-    /**
-     * @var array Used traits
-     */
-    private $usedTraits;
+	/**
+	 * @var array Used traits
+	 */
+	private $usedTraits;
 
-    /**
-     * Executing methods prolog, getResult and epilog included traits
-     *
-     * @param string $type prolog, getResult or epilog
-     */
-    private function executeTraits($type)
-    {
-        if (empty($this->usedTraits))
-        {
-            return;
-        }
+	/**
+	 * Executing methods prolog, getResult and epilog included traits
+	 *
+	 * @param string $type prolog, getResult or epilog
+	 */
+	private function executeTraits($type)
+	{
+		if (empty($this->usedTraits))
+		{
+			return;
+		}
 
-        switch ($type)
-        {
-            case 'prolog':
-                $type = 'Prolog';
-            break;
+		switch ($type)
+		{
+			case 'prolog':
+				$type = 'Prolog';
+			break;
 
-            case 'main':
-                $type = 'Main';
-            break;
+			case 'main':
+				$type = 'Main';
+			break;
 
-            default:
-                $type = 'Epilog';
-            break;
-        }
+			default:
+				$type = 'Epilog';
+			break;
+		}
 
-        foreach ($this->usedTraits as $trait => $name)
-        {
-            $method = 'execute'.$type.$name;
+		foreach ($this->usedTraits as $trait => $name)
+		{
+			$method = 'execute'.$type.$name;
 
-            if (method_exists($trait, $method))
-            {
-                $this->$method();
-            }
-        }
-    }
+			if (method_exists($trait, $method))
+			{
+				$this->$method();
+			}
+		}
+	}
 
-    /**
-     * Set to $this->usedTraits included traits
-     */
-    private function readUsedTraits()
-    {
-        if ($this->traitsAutoExecute)
-        {
-            $calledClass = get_called_class();
-            
-            $classes = class_parents($calledClass);
-            $classes[] = $calledClass;
-            
-            foreach ($classes as $class)
-            {
-                foreach (class_uses($class) as $trait)
-                {
-                    $this->usedTraits[$trait] = bx_basename($trait);
-                }
-            }
-        }
-    }
+	/**
+	 * Set to $this->usedTraits included traits
+	 */
+	private function readUsedTraits()
+	{
+		if ($this->traitsAutoExecute)
+		{
+			$calledClass = get_called_class();
 
-    final protected function executeBasis()
-    {
-        $this->readUsedTraits();
-        $this->includeModules();
-        $this->configurate();
-        $this->checkAutomaticParams();
-        $this->checkParams();
-        $this->startAjax();
-        $this->executeTraits('prolog');
-        $this->executeProlog();
+			$classes = class_parents($calledClass);
+			$classes[] = $calledClass;
 
-        if ($this->startCache())
-        {
-            $this->executeMain();
-            $this->executeTraits('main');
+			foreach ($classes as $class)
+			{
+				foreach (class_uses($class) as $trait)
+				{
+					$this->usedTraits[$trait] = bx_basename($trait);
+				}
+			}
+		}
+	}
 
-            if ($this->cacheTemplate)
-            {
-                $this->returnDatas();
-            }
+	final protected function executeBasis()
+	{
+		$this->readUsedTraits();
+		$this->includeModules();
+		$this->configurate();
+		$this->checkAutomaticParams();
+		$this->checkParams();
+		$this->startAjax();
+		$this->executeTraits('prolog');
+		$this->executeProlog();
 
-            $this->writeCache();
-        }
+		if ($this->startCache())
+		{
+			$this->executeMain();
+			$this->executeTraits('main');
 
-        if (!$this->cacheTemplate)
-        {
-            $this->returnDatas();
-        }
+			if ($this->cacheTemplate)
+			{
+				$this->returnDatas();
+			}
 
-        $this->executeTraits('epilog');
-        $this->executeEpilog();
-        $this->executeFinal();
-        $this->stopAjax();
-    }
+			$this->writeCache();
+		}
 
-    public function executeComponent()
-    {
-        try {
-            $this->executeBasis();
-        } catch (\Exception $e)
-        {
-            $this->catchException($e);
-        }
-    }
+		if (!$this->cacheTemplate)
+		{
+			$this->returnDatas();
+		}
+
+		$this->executeTraits('epilog');
+		$this->executeEpilog();
+		$this->executeFinal();
+		$this->stopAjax();
+	}
+
+	public function executeComponent()
+	{
+		try {
+			$this->executeBasis();
+		} catch (\Exception $e)
+		{
+			$this->catchException($e);
+		}
+	}
 }
